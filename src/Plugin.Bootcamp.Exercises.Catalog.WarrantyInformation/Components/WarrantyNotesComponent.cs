@@ -5,5 +5,7 @@ namespace Plugin.Bootcamp.Exercises.Catalog.WarrantyInformation.Components
     public class WarrantyNotesComponent : Component
     {
         /* STUDENT: Add properties as specified in the requirements */
+        public string WarrantyType { get; set; }
+        public int WarrantyTerm { get; set; }
     }
 }

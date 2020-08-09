@@ -15,11 +15,33 @@ namespace Plugin.Bootcamp.Exercises.Order.ConfirmationNumber.Blocks
     {
         public override Task<Sitecore.Commerce.Plugin.Orders.Order> Run(Sitecore.Commerce.Plugin.Orders.Order arg, CommercePipelineExecutionContext context)
         {
-
             Contract.Requires(arg != null);
             Contract.Requires(context != null);
             /* STUDENT: Complete this method to set the order number as specified in the requirements */
-             
+
+            var orderNumber = string.Empty;
+
+            var orderNumberPolicy = context.GetPolicy<OrderNumberPolicy>();
+            if(orderNumberPolicy != null)
+            {
+                orderNumber = orderNumberPolicy.OrderNumberPrefix;
+                if (orderNumberPolicy.IncludeDate)
+                {
+                    if (!string.IsNullOrEmpty(orderNumber))
+                        orderNumber += "-";
+                    orderNumber += DateTime.Now.ToString("yyyyMMdd");
+                }
+                if (!string.IsNullOrEmpty(orderNumber))
+                    orderNumber += "-";
+                orderNumber += Guid.NewGuid().ToString("N");
+                orderNumber += orderNumberPolicy.OrderNumberSuffix;
+            }
+            else
+            {
+                orderNumber += Guid.NewGuid().ToString("N");
+            }
+
+            arg.OrderConfirmationId = orderNumber;
 
             return Task.FromResult<Sitecore.Commerce.Plugin.Orders.Order>(arg);
         }

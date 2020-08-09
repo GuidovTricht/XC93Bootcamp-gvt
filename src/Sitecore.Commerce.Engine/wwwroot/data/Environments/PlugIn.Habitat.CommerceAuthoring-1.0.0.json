@@ -23,6 +23,14 @@
   "Policies": {
     "$type": "System.Collections.Generic.List`1[[Sitecore.Commerce.Core.Policy, Sitecore.Commerce.Core]], mscorlib",
     "$values": [
+      //Start custom policies
+      {
+        "$type": "Plugin.Bootcamp.Exercises.Order.ConfirmationNumber.Policies.OrderNumberPolicy, Plugin.Bootcamp.Exercises.Order.ConfirmationNumber",
+        "OrderNumberPrefix": "prefix",
+        "IncludeDate": true,
+        "OrderNumberSuffix": "suffix"
+      },
+      //End custom policies
       {
         "$type": "Sitecore.Commerce.Plugin.Orders.KnownOrderListsPolicy, Sitecore.Commerce.Plugin.Orders",
         "OrderDashboardLists": {
