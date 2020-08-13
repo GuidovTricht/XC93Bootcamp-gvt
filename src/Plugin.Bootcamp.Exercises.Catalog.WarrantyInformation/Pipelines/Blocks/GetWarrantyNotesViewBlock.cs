@@ -29,12 +29,13 @@ namespace Plugin.Bootcamp.Exercises.Catalog.WarrantyInformation.Pipelines.Blocks
             var isVariantView = arg.Name.Equals(catalogViewsPolicy.Variant);
             var isMasterView = arg.Name.Equals(catalogViewsPolicy.Master);
             var isWarrantyNotesView = arg.Name.Equals("WarrantyNotes");
+            var isConnectView = arg.Name.Equals(catalogViewsPolicy.ConnectSellableItem, StringComparison.InvariantCultureIgnoreCase);
             var entityViewArgument = _viewCommander.CurrentEntityViewArgument(context.CommerceContext);
             var sellableItem = entityViewArgument?.Entity as SellableItem;
             if(sellableItem == null)
                 return Task.FromResult(arg);
 
-            if (sellableItem != null || (!isVariantView && !isMasterView) || !isWarrantyNotesView)
+            if (sellableItem != null || isVariantView || isMasterView || isConnectView || !isWarrantyNotesView)
             {
                 var variationId = string.Empty;
                 if (!string.IsNullOrEmpty(arg.ItemId))
@@ -57,7 +58,7 @@ namespace Plugin.Bootcamp.Exercises.Catalog.WarrantyInformation.Pipelines.Blocks
                     arg.ChildViews.Add(componentView);
                 }
 
-                if (sellableItem.HasComponent<WarrantyNotesComponent>(variationId) || isVariantView || isMasterView || isEditView)
+                if (sellableItem != null && (sellableItem.HasComponent<WarrantyNotesComponent>(variationId) || isVariantView || isMasterView || isEditView || isConnectView))
                 {
                     var component = sellableItem.GetComponent<WarrantyNotesComponent>(variationId);
 
