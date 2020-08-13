@@ -31,8 +31,10 @@ namespace Plugin.Bootcamp.Exercises.Catalog.WarrantyInformation.Pipelines.Blocks
             var isWarrantyNotesView = arg.Name.Equals("WarrantyNotes");
             var entityViewArgument = _viewCommander.CurrentEntityViewArgument(context.CommerceContext);
             var sellableItem = entityViewArgument?.Entity as SellableItem;
+            if(sellableItem == null)
+                return Task.FromResult(arg);
 
-            if(sellableItem != null || (!isVariantView && !isMasterView) || !isWarrantyNotesView)
+            if (sellableItem != null || (!isVariantView && !isMasterView) || !isWarrantyNotesView)
             {
                 var variationId = string.Empty;
                 if (!string.IsNullOrEmpty(arg.ItemId))
@@ -40,13 +42,44 @@ namespace Plugin.Bootcamp.Exercises.Catalog.WarrantyInformation.Pipelines.Blocks
                     variationId = arg.ItemId;
                 }
 
+                var componentView = arg;
                 var isEditView = arg.Action.Equals("WarrantyNotes-Edit");
                 if (!isEditView)
                 {
-                    arg.ChildViews.Add(new EntityView()
+                    componentView = new EntityView()
                     {
+                        Name = "WarrantyNotes",
+                        DisplayName = "Warranty Notes",
+                        EntityId = arg.EntityId,
+                        EntityVersion = arg.EntityVersion,
+                        ItemId = variationId
+                    };
+                    arg.ChildViews.Add(componentView);
+                }
 
-                    })
+                if (sellableItem.HasComponent<WarrantyNotesComponent>(variationId) || isVariantView || isMasterView || isEditView)
+                {
+                    var component = sellableItem.GetComponent<WarrantyNotesComponent>(variationId);
+
+                    componentView.Properties.Add(
+                    new ViewProperty
+                    {
+                        Name = nameof(WarrantyNotesComponent.WarrantyTerm),
+                        DisplayName = "Warranty Term",
+                        RawValue = component.WarrantyTerm,
+                        IsReadOnly = !isEditView,
+                        IsRequired = false
+                    });
+
+                    componentView.Properties.Add(
+                    new ViewProperty
+                    {
+                        Name = nameof(WarrantyNotesComponent.WarrantyType),
+                        DisplayName = "Warranty Type",
+                        RawValue = component.WarrantyType,
+                        IsReadOnly = !isEditView,
+                        IsRequired = false
+                    });
                 }
             }
 
