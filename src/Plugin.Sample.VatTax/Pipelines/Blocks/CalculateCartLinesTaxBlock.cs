@@ -44,7 +44,7 @@ namespace Plugin.Bootcamp.Exercises.VatTax.Pipelines.Blocks
             context.Logger.LogDebug($"{this.Name} - Policy:{globalTaxPolicy.TaxCalculationEnabled}");
 
             /* STUDENT: Uncomment lines 47-98 after you have implemented the VatTax entity */
-            /*
+            
             var vatTaxTable = await this._commerceCommander.Command<ListCommander>()
                 .GetListItems<VatTaxEntity>(context.CommerceContext,
                     CommerceEntity.ListName<VatTaxEntity>(), 0, 99).ConfigureAwait(false);
@@ -53,7 +53,7 @@ namespace Plugin.Bootcamp.Exercises.VatTax.Pipelines.Blocks
             {
                 var lineProductComponent = line.GetComponent<CartProductComponent>();
                 var tags = lineProductComponent.Tags;
-                
+
                 foreach (var taxRateLine in vatTaxTable)
                 {
                     if (tags.Any(p => p.Name == taxRateLine.TaxTag))
@@ -80,11 +80,11 @@ namespace Plugin.Bootcamp.Exercises.VatTax.Pipelines.Blocks
                                         globalPricingPolicy.RoundDigits,
                                         globalPricingPolicy.MidPointRoundUp ? MidpointRounding.AwayFromZero : MidpointRounding.ToEven);
                                 }
-                              
+
                                 line.Adjustments.Add(new CartLineLevelAwardedAdjustment
                                 {
                                     Name = TaxConstants.TaxAdjustmentName,
-                                   
+
                                     DisplayName = $"{taxRate * 100}% Vat Tax",
                                     Adjustment = tax,
                                     AdjustmentType = context.GetPolicy<KnownCartAdjustmentTypesPolicy>().Tax,
@@ -95,7 +95,8 @@ namespace Plugin.Bootcamp.Exercises.VatTax.Pipelines.Blocks
                             }
                         }
                     }
-                } */
+                }
+            }
 
             return arg;
         }

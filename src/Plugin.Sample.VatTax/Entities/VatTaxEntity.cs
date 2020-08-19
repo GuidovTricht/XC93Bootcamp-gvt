@@ -18,5 +18,8 @@
         }
         
         /* STUDENT: Add read/write properties to the class to meet the requirements */
+        public string TaxTag { get; set; }
+        public string CountryCode { get; set; }
+        public int TaxPct { get; set; }
     }
 }

@@ -25,6 +25,22 @@ namespace Plugin.Bootcamp.Exercises.VatTax
                 /* STUDENT: Add code here to configure the necessary pipelines to show your navigation, present your
                  * dashboard, present your add form, and handle your actions. */
 
+                .ConfigurePipeline<IBizFxNavigationPipeline>(c =>
+                {
+                    c.Add<GetVatTaxNavigationViewBlock>();
+                })
+                .ConfigurePipeline<IGetEntityViewPipeline>(c =>
+                {
+                    c.Add<GetVatTaxDashboardViewBlock>();
+                })
+               .ConfigurePipeline<IPopulateEntityViewActionsPipeline>(c =>
+               {
+                   c.Add<PopulateVatTaxDashboardActionsBlock>().After<InitializeEntityViewActionsBlock>();
+               })
+               //.ConfigurePipeline<IDoActionPipeline>(c =>
+               //{
+               //    c.Add<DoActionEditWarrantyNotesBlock>().After<ValidateEntityVersionBlock>();
+               //})
                .ConfigurePipeline<ICalculateCartLinesPipeline>(d =>
                 {
                     d.Replace<Sitecore.Commerce.Plugin.Tax.CalculateCartLinesTaxBlock, CalculateCartLinesTaxBlockCustom>();
