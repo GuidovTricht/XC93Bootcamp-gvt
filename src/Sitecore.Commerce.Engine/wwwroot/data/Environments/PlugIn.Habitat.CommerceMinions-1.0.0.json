@@ -30,6 +30,10 @@
         "IncludeDate": true,
         "OrderNumberSuffix": "suffix"
       },
+      {
+        "$type": "Plugin.Bootcamp.Exercises.Promotions.WeatherServiceClientPolicy, Plugin.Bootcamp.Exercises.Promotions",
+        "ApiKey": "e4c44a86a4471646c5aa485f9ccd4d7d"
+      },
       //End custom policies
       {
         "$type": "Sitecore.Commerce.Core.PolicySetPolicy, Sitecore.Commerce.Core",

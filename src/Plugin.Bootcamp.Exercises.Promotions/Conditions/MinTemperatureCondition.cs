@@ -12,6 +12,9 @@ namespace Plugin.Bootcamp.Exercises.Promotions
         /* STUDENT: Add IRuleValue properties for the city, country, and
          * minimum temperature.
          */
+        public IRuleValue<String> City { get; set; }
+        public IRuleValue<String> Country { get; set; }
+        public IRuleValue<Decimal> MinimumTemperature { get; set; }
 
         public bool Evaluate(IRuleExecutionContext context)
         {
@@ -20,11 +23,27 @@ namespace Plugin.Bootcamp.Exercises.Promotions
              * Compare it to the temperature stored in the Policy
              * Return the result of that comparison
              */
+            var policy = context.Fact<CommerceContext>((string)null)?.GetPolicy<WeatherServiceClientPolicy>();
+            if (string.IsNullOrEmpty(policy?.ApiKey))
+                return false;
 
-            
-            // STUDENT: Replace this line. It is only provided so the stub 
-            // project will build cleanly
-            return false;
+            var weatherService = new WeatherService(policy.ApiKey);
+            if (weatherService == null)
+                return false;
+
+            var city = this.City.Yield(context);
+            if (city == null)
+                return false;
+            var country = this.Country.Yield(context);
+            if (country == null)
+                return false;
+            var minTemp = this.MinimumTemperature.Yield(context);
+
+            var temp = weatherService.GetCurrentTemperature(city, country).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (temp?.Value == null)
+                return false;
+
+            return Convert.ToDecimal(temp.Value) > minTemp;
         }
 
         public decimal GetCurrentTemperature(string city, string country, string applicationId)

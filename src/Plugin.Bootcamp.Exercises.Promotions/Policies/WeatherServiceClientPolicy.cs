@@ -8,5 +8,6 @@ namespace Plugin.Bootcamp.Exercises.Promotions
         /* Student: Create a property to store the API key.
          * Create a constructor to initialize it to an empty
          * string. */
+        public string ApiKey { get; set; } = string.Empty;
     }
 }
