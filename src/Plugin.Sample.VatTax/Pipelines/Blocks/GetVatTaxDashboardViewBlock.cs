@@ -15,12 +15,14 @@ namespace Plugin.Bootcamp.Exercises.VatTax.EntityViews
     public class GetVatTaxDashboardViewBlock : PipelineBlock<EntityView, EntityView, CommercePipelineExecutionContext>
     {
         private readonly CommerceCommander _commerceCommander;
-        
-        public GetVatTaxDashboardViewBlock(CommerceCommander commerceCommander)
+        private readonly IFindEntitiesInListPipeline _findEntitiesInListPipeline;
+
+        public GetVatTaxDashboardViewBlock(CommerceCommander commerceCommander, IFindEntitiesInListPipeline findEntitiesInListPipeline)
         {
             this._commerceCommander = commerceCommander;
+            this._findEntitiesInListPipeline = findEntitiesInListPipeline;
         }
-        
+
         public override async Task<EntityView> Run(EntityView entityView, CommercePipelineExecutionContext context)
         {
             Contract.Requires(entityView != null);
@@ -33,59 +35,129 @@ namespace Plugin.Bootcamp.Exercises.VatTax.EntityViews
             if (string.IsNullOrEmpty(entityViewArgument?.ViewName))
                 return entityView;
 
+            var isAddAction = entityViewArgument.ViewName.Equals("VatTax-Add", StringComparison.OrdinalIgnoreCase);
+            if (isAddAction)
+            {
+                entityView.Properties.Add(new ViewProperty
+                {
+                    Name = "TaxTag",
+                    DisplayName = "TaxTag",
+                    RawValue = string.Empty,
+                    IsReadOnly = false,
+                    IsRequired = true,
+                    IsHidden = false
+                });
+                entityView.Properties.Add(new ViewProperty
+                {
+                    Name = "CountryCode",
+                    DisplayName = "CountryCode",
+                    RawValue = string.Empty,
+                    IsReadOnly = false,
+                    IsRequired = true,
+                    IsHidden = false
+                });
+                entityView.Properties.Add(new ViewProperty
+                {
+                    Name = "TaxPct",
+                    DisplayName = "TaxPct",
+                    RawValue = string.Empty,
+                    IsReadOnly = false,
+                    IsRequired = true,
+                    IsHidden = false
+                });
+
+                return entityView;
+            }
+
+            var isEditAction = entityViewArgument.ViewName.Equals("VatTax-Edit", StringComparison.OrdinalIgnoreCase);
+            if (isEditAction && entityViewArgument?.Entity is VatTaxEntity viewEntity)
+            {
+                entityView.Properties.Add(new ViewProperty
+                {
+                    Name = "TaxTag",
+                    RawValue = viewEntity.TaxTag,
+                    IsReadOnly = true,
+                    IsRequired = false,
+                    IsHidden = false
+                });
+                entityView.Properties.Add(new ViewProperty
+                {
+                    Name = "CountryCode",
+                    RawValue = viewEntity.CountryCode,
+                    IsReadOnly = false,
+                    IsRequired = true,
+                    IsHidden = false
+                });
+                entityView.Properties.Add(new ViewProperty
+                {
+                    Name = "TaxPct",
+                    RawValue = viewEntity.TaxPct,
+                    IsReadOnly = false,
+                    IsRequired = true,
+                    IsHidden = false
+                });
+
+                return entityView;
+            }
+
             if (entityViewArgument.ViewName.Equals("VatTaxDashboard", StringComparison.OrdinalIgnoreCase))
             {
                 //Add list
-                var dashboardListView = new EntityView();
-                dashboardListView.Name = "VatTaxList";
-                entityView.ChildViews.Add(dashboardListView);
+                var dashboardListView = entityView;
                 dashboardListView.UiHint = "Table";
 
-                var allEntities = context.CommerceContext.GetEntities<VatTaxEntity>();
-                foreach(var entity in allEntities)
-                {
-                    var ev = new EntityView();
-                    ev.EntityId = entity.Id;
-                    ev.ItemId = entity.Id;
-                    ev.DisplayName = entity.DisplayName;
-                    ev.Name = "Summary";
+                var listEntities = await _findEntitiesInListPipeline.Run(new FindEntitiesInListArgument(typeof(Entities.VatTaxEntity), CommerceEntity.ListName<Entities.VatTaxEntity>(), 0, 10), context).ConfigureAwait(false);
+                var allEntities = listEntities?.List?.Items?.Where(i => i is VatTaxEntity)?.Select(i => i as VatTaxEntity)?.ToList();
+                if (allEntities == null || !allEntities.Any())
+                    return entityView;
 
-                    ev.Properties.Add(new ViewProperty
+                foreach (var entity in allEntities)
+                {
+                    var ev = new EntityView()
+                    {
+                        EntityId = entity.Id,
+                        ItemId = entity.Id,
+                        DisplayName = entity.DisplayName,
+                        Name = "Summary"
+                    };
+                    var viewProperties = ev.Properties;
+
+                    viewProperties.Add(new ViewProperty
                     {
                         Name = "ItemId",
                         RawValue = entity.Id,
                         IsHidden = true,
                         IsReadOnly = true
                     });
-                    ev.Properties.Add(new ViewProperty
+                    viewProperties.Add(new ViewProperty
                     {
                         Name = "Tag",
+                        DisplayName = "Tag",
                         RawValue = entity.TaxTag,
-                        IsReadOnly = true,
-                        UiType = "EntityLink"
+                        Value = entity.TaxTag,
+                        IsReadOnly = true
                     });
-                    ev.Properties.Add(new ViewProperty
+                    viewProperties.Add(new ViewProperty
                     {
                         Name = "Country code",
+                        DisplayName = "Country code",
                         RawValue = entity.CountryCode,
-                        IsReadOnly = true,
-                        UiType = "EntityLink"
+                        Value = entity.CountryCode,
+                        IsReadOnly = true
                     });
-                    ev.Properties.Add(new ViewProperty
+                    viewProperties.Add(new ViewProperty
                     {
                         Name = "Pct",
+                        DisplayName = "Pct",
                         RawValue = entity.TaxPct,
-                        IsReadOnly = true,
-                        UiType = "EntityLink"
+                        Value = entity.TaxPct.ToString(),
+                        IsReadOnly = true
                     });
 
                     dashboardListView.ChildViews.Add(ev);
                 }
             }
 
-
-
-            
             return entityView;
         }
     }

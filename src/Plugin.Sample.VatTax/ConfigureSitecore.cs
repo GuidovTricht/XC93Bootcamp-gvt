@@ -37,10 +37,11 @@ namespace Plugin.Bootcamp.Exercises.VatTax
                {
                    c.Add<PopulateVatTaxDashboardActionsBlock>().After<InitializeEntityViewActionsBlock>();
                })
-               //.ConfigurePipeline<IDoActionPipeline>(c =>
-               //{
-               //    c.Add<DoActionEditWarrantyNotesBlock>().After<ValidateEntityVersionBlock>();
-               //})
+               .ConfigurePipeline<IDoActionPipeline>(c =>
+               {
+                   c.Add<DoActionAddVatTaxBlock>().After<ValidateEntityVersionBlock>();
+                   c.Add<DoActionRemoveVatTaxBlock>().After<DoActionAddVatTaxBlock>();
+               })
                .ConfigurePipeline<ICalculateCartLinesPipeline>(d =>
                 {
                     d.Replace<Sitecore.Commerce.Plugin.Tax.CalculateCartLinesTaxBlock, CalculateCartLinesTaxBlockCustom>();
