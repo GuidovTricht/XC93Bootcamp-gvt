@@ -25,16 +25,23 @@ namespace Plugin.Bootcamp.Exercises.Order.Export
             *  
             *  You will also need to add code to add your new pipeline
             *  and add blocks to it. */
-            /*
+
             services.Sitecore().Pipelines(config => config
-            
+
               .ConfigurePipeline<IGetEntityViewPipeline>(configure =>
               {
                   configure.Add<OrdersExportViewBlock>().After<GetOrderLinesViewBlock>();
               })
-           
+
+              .AddPipeline<IExportOrderMinionPipeline, ExportOrderMinionPipeline>(configure => configure
+                .Add<RetrieveOrderBlock>()
+                //.Add<GenerateOrderShipmentBlock>()
+                //.Add<GenerateOrderLinesShipmentBlock>()
+                //.Add<GenerateOrderEntitlementsBlock>()
+                .Add<ExportOrderToFileBlock>()
+                .Add<MoveReleasedOrderBlock>()
+              )
              );
-             */
 
             
 

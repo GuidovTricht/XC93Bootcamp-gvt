@@ -28,7 +28,24 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
             /* STUDENT: Complete the body of this method. Check that the order is valid,
              * and that it has not already been exported,
              * then export it to a file based on the configuration provided in the policy. */
-            
+            var policy = context.GetPolicy<OrderExportPolicy>();
+
+            if (!order.HasComponent<ExportedOrderComponent>())
+            {
+                var serializedOrder = order.Deflate();
+                var fileName = Guid.NewGuid().ToString("D") + ".json";
+                var filePath = policy.ExportToFileLocation + "\\" + fileName;
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(filePath))
+                {
+                    file.Write(serializedOrder);
+                }
+
+                var exportComponent = order.GetComponent<ExportedOrderComponent>();
+                exportComponent.ExportFilename = fileName;
+                exportComponent.DateExported = DateTime.Now;
+                await _persistEntityPipeline.Run(new PersistEntityArgument(order), context).ConfigureAwait(false);
+            }
+
             return order;
         }
     }

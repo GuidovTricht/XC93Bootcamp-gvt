@@ -9,12 +9,12 @@ using XC = Sitecore.Commerce.Plugin.Orders;
 
 namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
 {
-    [PipelineDisplayName("OrdersEntityViewBlock")]
-    public class OrdersEntityViewBlock : PipelineBlock<EntityView, EntityView, CommercePipelineExecutionContext>
+    [PipelineDisplayName("OrdersExportViewBlock")]
+    public class OrdersExportViewBlock : PipelineBlock<EntityView, EntityView, CommercePipelineExecutionContext>
     {
         private readonly ViewCommander _viewCommander;
 
-        public OrdersEntityViewBlock(ViewCommander viewCommander)
+        public OrdersExportViewBlock(ViewCommander viewCommander)
         {
             this._viewCommander = viewCommander;
         }
@@ -23,7 +23,7 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
         {
             Contract.Requires(entityView != null);
             Contract.Requires(context != null);
-            /* STUDENT: Uncomment from here down to line 79
+            /* STUDENT: Uncomment from here down to line 79 */
             var request = this._viewCommander.CurrentEntityViewArgument(context.CommerceContext);
             if (request.ViewName != context.GetPolicy<KnownOrderViewsPolicy>().Summary
                  && request.ViewName != context.GetPolicy<KnownOrderViewsPolicy>().Master)
@@ -76,7 +76,6 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
                     IsReadOnly = true,
                     IsRequired = false
                 });
-                */
             return Task.FromResult(entityView);
         }
     }

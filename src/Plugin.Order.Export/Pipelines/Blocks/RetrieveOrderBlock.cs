@@ -1,4 +1,5 @@
-﻿using Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Arguments;
+﻿using Microsoft.Extensions.Logging;
+using Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Arguments;
 using Sitecore.Commerce.Core;
 using Sitecore.Framework.Pipelines;
 using System.Diagnostics.Contracts;
@@ -22,9 +23,12 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
             Contract.Requires(arg != null);
             Contract.Requires(context != null);
 
-            XC.Order order = await this._findEntityPipeline.Run(new FindEntityArgument(typeof(XC.Order), arg.OrderId, false), context).ConfigureAwait(false) as XC.Order;
+            if (string.IsNullOrEmpty(arg.OrderId))
+                context.Abort("Order could not be exported because OrderId was null or empty", context);
 
-            /* STUDENT: Add error handling to deal with the situation where no order was found. */
+            XC.Order order = await this._findEntityPipeline.Run(new FindEntityArgument(typeof(XC.Order), arg.OrderId, false), context).ConfigureAwait(false) as XC.Order;
+            if (order == null)
+                context.Abort($"Order could not be found for OrderId: {arg.OrderId}", context);
 
             return order;
         }

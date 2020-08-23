@@ -28,10 +28,25 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Minions
             /* STUDENT: Complete the body of this method. You need to pull from an appropriate list
              * and then execute an appropriate pipeline. */
 
-            
+            int itemsProcessed = 0;
+            foreach(var listName in this.Policy.ListsToWatch)
+            {
+                CommerceList<CommerceEntity> commerceList = await this.GetItems<XC.Order>(listName, this.Policy.ItemsPerBatch, 0).ConfigureAwait(false);
+                long totalItemCount = commerceList.TotalItemCount;
+                if(totalItemCount > 0)
+                {
+                    foreach (var order in commerceList.Items.OfType<XC.Order>())
+                    {
+                        CommercePipelineExecutionContextOptions executionContextOptions = new CommercePipelineExecutionContextOptions(new CommerceContext(Logger, MinionContext.TelemetryClient, null));
+                        var processedOrder = await ExportOrderPipeline.Run(new ExportOrderArgument(order.Id), executionContextOptions).ConfigureAwait(false);
+                        itemsProcessed++;
+                    }
+                }
+            }
+
+            runResults.DidRun = true;
+            runResults.ItemsProcessed = itemsProcessed;
             return runResults;
         }
-
-
     }
 }
