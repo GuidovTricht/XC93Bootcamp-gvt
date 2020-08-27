@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Arguments;
 using Sitecore.Commerce.Core;
+using Sitecore.Commerce.Plugin.Orders;
 using Sitecore.Framework.Pipelines;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -12,10 +13,12 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
     public class RetrieveOrderBlock : PipelineBlock<ExportOrderArgument, XC.Order, CommercePipelineExecutionContext>
     {
         private readonly IFindEntityPipeline _findEntityPipeline;
+        private readonly IGetOrderPipeline _getOrderPipeline;
 
-        public RetrieveOrderBlock(IFindEntityPipeline findEntityPipeline)
+        public RetrieveOrderBlock(IFindEntityPipeline findEntityPipeline, IGetOrderPipeline getOrderPipeline)
         {
             this._findEntityPipeline = findEntityPipeline;
+            this._getOrderPipeline = getOrderPipeline;
         }
 
         public override async Task<XC.Order> Run(ExportOrderArgument arg, CommercePipelineExecutionContext context)

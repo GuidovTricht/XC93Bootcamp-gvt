@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Threading.Tasks;
+using XC = Sitecore.Commerce.Plugin.Orders;
 
 namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
 {
@@ -43,7 +44,7 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Pipelines.Blocks
                 var exportComponent = order.GetComponent<ExportedOrderComponent>();
                 exportComponent.ExportFilename = fileName;
                 exportComponent.DateExported = DateTime.Now;
-                await _persistEntityPipeline.Run(new PersistEntityArgument(order), context).ConfigureAwait(false);
+                return (await _persistEntityPipeline.Run(new PersistEntityArgument(order), context).ConfigureAwait(false))?.Entity as XC.Order ?? order;
             }
 
             return order;

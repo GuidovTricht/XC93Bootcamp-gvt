@@ -37,8 +37,7 @@ namespace Plugin.Bootcamp.Exercises.Order.Export.Minions
                 {
                     foreach (var order in commerceList.Items.OfType<XC.Order>())
                     {
-                        CommercePipelineExecutionContextOptions executionContextOptions = new CommercePipelineExecutionContextOptions(new CommerceContext(Logger, MinionContext.TelemetryClient, null));
-                        var processedOrder = await ExportOrderPipeline.Run(new ExportOrderArgument(order.Id), executionContextOptions).ConfigureAwait(false);
+                        var processedOrder = await ExportOrderPipeline.Run(new ExportOrderArgument(order.Id), MinionContext.PipelineContextOptions).ConfigureAwait(false);
                         itemsProcessed++;
                     }
                 }
